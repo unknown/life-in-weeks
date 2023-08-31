@@ -19,3 +19,7 @@ export const getYearsBetween = function getYearsBetween(
 export const getISODateString = function getISO8601DateString(date: Date) {
   return date.toISOString().split("T")[0];
 };
+
+export const getUTCDateString = function getUTCDateString(date: Date) {
+  return date.toLocaleDateString(undefined, { timeZone: "UTC" });
+};

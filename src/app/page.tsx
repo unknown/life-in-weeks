@@ -1,7 +1,8 @@
 import { Progress } from "@/components/ui/progress";
 import { WeekElement } from "@/components/week-element";
 import config from "@/data/config";
-import { getDaysBetween, getYearsBetween } from "@/utils/date";
+import { getDaysBetween, getUTCDateString, getYearsBetween } from "@/utils/date";
+import { ordinalize } from "@/utils/number";
 import { getRemainingLifeExpectancy } from "@/utils/population";
 
 const { name, dob, country, sex } = config;
@@ -31,20 +32,22 @@ export default async function Home() {
         </div>
       </section>
       <section>
-        <div className="grid-auto-fit-[16px] grid gap-3">
+        <div className="grid gap-3 grid-auto-fit-[16px]">
           {Array.from({ length: lifeExpectancyDays / 7 }, (_, i) => {
             const week = i + 1;
             const weekStart = new Date(dob.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
             const weekEnd = new Date(dob.getTime() + week * 7 * 24 * 60 * 60 * 1000);
-            // TODO: this is a bit hacky, but it works for now
-            const nearestBirthday = new Date(dob).setFullYear(
-              Math.max(new Date(weekStart).getFullYear(), new Date(weekEnd).getFullYear()),
-            );
+
+            const nearestBirthday = new Date(dob);
+            nearestBirthday.setFullYear(weekStart.getFullYear());
 
             const isBirthdayWeek =
-              weekStart.getTime() <= nearestBirthday && nearestBirthday < weekEnd.getTime();
+              weekStart.getTime() <= nearestBirthday.getTime() &&
+              nearestBirthday.getTime() < weekEnd.getTime();
             const isPast = weekEnd.getTime() < today.getTime();
             const isFuture = today.getTime() < weekStart.getTime();
+
+            const age = nearestBirthday.getFullYear() - dob.getFullYear();
 
             return (
               <WeekElement
@@ -55,10 +58,9 @@ export default async function Home() {
                 tooltipContent={
                   <div className="text-center">
                     <h2>
-                      Week {week} ({weekStart.toLocaleDateString()} - {weekEnd.toLocaleDateString()}
-                      )
+                      Week {week} ({getUTCDateString(weekStart)} - {getUTCDateString(weekEnd)})
                     </h2>
-                    {isBirthdayWeek ? <p>Birthday! 🎉</p> : null}
+                    {isBirthdayWeek ? <p>{ordinalize(age)} Birthday! 🎉</p> : null}
                   </div>
                 }
               />
