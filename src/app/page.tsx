@@ -1,3 +1,4 @@
+import { Progress } from "@/components/ui/progress";
 import config from "@/data/config";
 import { getDaysBetween, getYearsBetween } from "@/utils/date";
 import { getRemainingLifeExpectancy } from "@/utils/population";
@@ -16,15 +17,15 @@ export default async function Home() {
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col items-stretch gap-4 p-24">
       <section>
         <h1 className="text-4xl font-medium">{name}'s Life in Weeks</h1>
-        <p>
+        <p className="mt-1">
           A representation of my life in days, assuming a life expectancy of{" "}
           <a className="underline underline-offset-4" href="https://population.io/">
             {lifeExpectancyYears.toFixed(2)} years
           </a>
           .
         </p>
-        <div>
-          <progress className="w-full" value={daysLived} max={lifeExpectancyDays} />
+        <div className="mt-6 space-y-2">
+          <Progress className="w-full" value={daysLived} max={lifeExpectancyDays} />
           <p className="text-center">
             Today is day <span className="tabular-nums">{daysLived}</span>.
           </p>
@@ -53,11 +54,11 @@ export default async function Home() {
                   isPresent
                     ? "bg-blue-400"
                     : isFuture
-                    ? "bg-zinc-100"
+                    ? "bg-neutral-100"
                     : isBirthdayWeek
-                    ? "bg-zinc-800"
+                    ? "bg-neutral-800"
                     : isPast
-                    ? "bg-zinc-300"
+                    ? "bg-neutral-300"
                     : ""
                 }`}
               />
