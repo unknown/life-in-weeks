@@ -1,5 +1,5 @@
 import config from "@/data/config";
-import { getDaysBetween, getWeeksBetween } from "@/utils/date";
+import { getDaysBetween } from "@/utils/date";
 import { getLifeExpectancy } from "@/utils/population";
 
 const { name, dob, country, sex } = config;
@@ -9,7 +9,6 @@ export default async function Home() {
   const lifeExpectancyYears = await getLifeExpectancy(dob, country, sex);
   const lifeExpectancy = lifeExpectancyYears * 365;
   const daysLived = getDaysBetween(dob, today);
-  const weeksLived = getWeeksBetween(dob, today);
 
   return (
     <main className="flex min-h-screen flex-col items-stretch gap-4 p-24">
@@ -32,15 +31,32 @@ export default async function Home() {
       <section>
         <div className="grid grid-cols-12 gap-2">
           {Array.from({ length: lifeExpectancy / 7 }, (_, i) => {
-            const day = i + 1;
-            const isPast = day < weeksLived;
-            const isPresent = day === weeksLived;
-            const isFuture = day > weeksLived;
+            const week = i + 1;
+            const lowerBound = dob.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000;
+            const upperBound = dob.getTime() + week * 7 * 24 * 60 * 60 * 1000;
+            const nearestBirthday = new Date(dob).setFullYear(
+              Math.max(new Date(lowerBound).getFullYear(), new Date(upperBound).getFullYear()),
+            );
+
+            const isBirthdayWeek = lowerBound <= nearestBirthday && nearestBirthday < upperBound;
+            const isPast = upperBound < today.getTime();
+            const isPresent = lowerBound <= today.getTime() && today.getTime() < upperBound;
+            const isFuture = today.getTime() < lowerBound;
+
             return (
               <div
-                key={day}
+                key={week}
+                title={`Week ${week}`}
                 className={`col-span-1 h-4 rounded-sm ${
-                  isPast ? "bg-gray-400" : isPresent ? "bg-blue-400" : isFuture ? "bg-gray-200" : ""
+                  isPresent
+                    ? "bg-blue-400"
+                    : isFuture
+                    ? "bg-zinc-100"
+                    : isBirthdayWeek
+                    ? "bg-zinc-800"
+                    : isPast
+                    ? "bg-zinc-300"
+                    : ""
                 }`}
               />
             );
