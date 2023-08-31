@@ -1,4 +1,5 @@
 import { Progress } from "@/components/ui/progress";
+import { WeekElement } from "@/components/week-element";
 import config from "@/data/config";
 import { getDaysBetween, getYearsBetween } from "@/utils/date";
 import { getRemainingLifeExpectancy } from "@/utils/population";
@@ -26,41 +27,40 @@ export default async function Home() {
         </p>
         <div className="mt-6 space-y-2">
           <Progress className="w-full" value={daysLived} max={lifeExpectancyDays} />
-          <p className="text-center">
-            Today is day <span className="tabular-nums">{daysLived}</span>.
-          </p>
+          <p className="text-center">Today is day {daysLived}.</p>
         </div>
       </section>
       <section>
         <div className="grid-auto-fit-[16px] grid gap-3">
           {Array.from({ length: lifeExpectancyDays / 7 }, (_, i) => {
             const week = i + 1;
-            const lowerBound = dob.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000;
-            const upperBound = dob.getTime() + week * 7 * 24 * 60 * 60 * 1000;
+            const weekStart = new Date(dob.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
+            const weekEnd = new Date(dob.getTime() + week * 7 * 24 * 60 * 60 * 1000);
+            // TODO: this is a bit hacky, but it works for now
             const nearestBirthday = new Date(dob).setFullYear(
-              Math.max(new Date(lowerBound).getFullYear(), new Date(upperBound).getFullYear()),
+              Math.max(new Date(weekStart).getFullYear(), new Date(weekEnd).getFullYear()),
             );
 
-            const isBirthdayWeek = lowerBound <= nearestBirthday && nearestBirthday < upperBound;
-            const isPast = upperBound < today.getTime();
-            const isPresent = lowerBound <= today.getTime() && today.getTime() < upperBound;
-            const isFuture = today.getTime() < lowerBound;
+            const isBirthdayWeek =
+              weekStart.getTime() <= nearestBirthday && nearestBirthday < weekEnd.getTime();
+            const isPast = weekEnd.getTime() < today.getTime();
+            const isFuture = today.getTime() < weekStart.getTime();
 
             return (
-              <div
+              <WeekElement
                 key={week}
-                title={`Week ${week}`}
-                className={`col-span-1 h-4 w-4 rounded-sm ${
-                  isPresent
-                    ? "bg-blue-400"
-                    : isFuture
-                    ? "bg-neutral-100"
-                    : isBirthdayWeek
-                    ? "bg-neutral-800"
-                    : isPast
-                    ? "bg-neutral-300"
-                    : ""
-                }`}
+                variant={
+                  isFuture ? "future" : isBirthdayWeek ? "birthday" : isPast ? "past" : "present"
+                }
+                tooltipContent={
+                  <div className="text-center">
+                    <h2>
+                      Week {week} ({weekStart.toLocaleDateString()} - {weekEnd.toLocaleDateString()}
+                      )
+                    </h2>
+                    {isBirthdayWeek ? <p>Birthday! 🎉</p> : null}
+                  </div>
+                }
               />
             );
           })}
