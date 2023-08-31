@@ -18,10 +18,15 @@ export default async function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col items-stretch gap-4 p-24">
       <section>
-        <h1 className="text-4xl font-medium">{name}'s Life in Weeks</h1>
+        <h1 className="text-4xl font-medium">{name}&apos;s Life in Weeks</h1>
         <p className="mt-1">
           A representation of my life in days, assuming a life expectancy of{" "}
-          <a className="underline underline-offset-4" href="https://population.io/">
+          <a
+            className="underline underline-offset-4"
+            href="https://population.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {lifeExpectancyYears.toFixed(2)} years
           </a>
           .
