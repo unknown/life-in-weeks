@@ -1,8 +1,6 @@
 import * as React from "react";
 import { cva, VariantProps } from "class-variance-authority";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
 const weekVariants = cva("h-4 w-4 rounded-sm", {
   variants: {
     variant: {
@@ -14,19 +12,8 @@ const weekVariants = cva("h-4 w-4 rounded-sm", {
   },
 });
 
-type WeekElementProps = {
-  tooltipContent?: React.ReactNode;
-} & VariantProps<typeof weekVariants>;
+type WeekElementProps = VariantProps<typeof weekVariants>;
 
-export const WeekElement = function WeekElement({ variant, tooltipContent }: WeekElementProps) {
-  return (
-    <TooltipProvider delayDuration={200}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className={weekVariants({ variant })} />
-        </TooltipTrigger>
-        <TooltipContent>{tooltipContent}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
+export const WeekElement = function WeekElement({ variant }: WeekElementProps) {
+  return <div className={weekVariants({ variant })} />;
 };

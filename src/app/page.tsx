@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WeekElement } from "@/components/week-element";
 import config from "@/data/config";
 import events from "@/data/events";
@@ -22,7 +23,7 @@ export default async function Home() {
       <section>
         <div className="mx-auto max-w-xl">
           <h1 className="text-4xl font-medium">{name}&apos;s Life in Weeks</h1>
-          <p className="mt-1">
+          <p className="mt-2">
             A representation of my life in days, assuming a life expectancy of{" "}
             <a
               className="underline underline-offset-4"
@@ -31,6 +32,24 @@ export default async function Home() {
               rel="noopener noreferrer"
             >
               {lifeExpectancyYears.toFixed(2)} years
+            </a>
+            . This draws heavy inspiration from{" "}
+            <a
+              className="underline underline-offset-4"
+              href="https://days.rory.codes/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Day by Day
+            </a>{" "}
+            by Rory Flint. You can create your own version of this by forking{" "}
+            <a
+              className="underline underline-offset-4"
+              href="https://github.com/unknown/week-by-week"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              this repository
             </a>
             .
           </p>
@@ -42,50 +61,55 @@ export default async function Home() {
       </section>
       <section>
         <div className="mx-auto grid max-w-xl gap-3 grid-auto-fit-[16px]">
-          {Array.from({ length: lifeExpectancyDays / 7 }, (_, i) => {
-            const week = i + 1;
-            const weekStart = new Date(dob.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
-            const weekEnd = new Date(dob.getTime() + week * 7 * 24 * 60 * 60 * 1000);
+          <TooltipProvider delayDuration={200}>
+            {Array.from({ length: lifeExpectancyDays / 7 }, (_, i) => {
+              const week = i + 1;
+              const weekStart = new Date(dob.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
+              const weekEnd = new Date(dob.getTime() + week * 7 * 24 * 60 * 60 * 1000);
 
-            const isPast = weekEnd.getTime() < today.getTime();
-            const isFuture = today.getTime() < weekStart.getTime();
+              const isPast = weekEnd.getTime() < today.getTime();
+              const isFuture = today.getTime() < weekStart.getTime();
 
-            const eventsThisWeek = events.filter(
-              (event) =>
-                weekStart.getTime() <= event.date.getTime() &&
-                event.date.getTime() < weekEnd.getTime(),
-            );
+              const eventsThisWeek = events.filter(
+                (event) =>
+                  weekStart.getTime() <= event.date.getTime() &&
+                  event.date.getTime() < weekEnd.getTime(),
+              );
 
-            return (
-              <WeekElement
-                key={week}
-                variant={
-                  isFuture
-                    ? "disabled"
-                    : eventsThisWeek.length > 0
-                    ? "primary"
-                    : isPast
-                    ? "default"
-                    : "active"
-                }
-                tooltipContent={
-                  <div className="max-w-[16rem]">
-                    <h2 className="text-center">
-                      Week {week} ({getUTCDateString(weekStart)} - {getUTCDateString(weekEnd)})
-                    </h2>
-                    <div className="grid grid-cols-[max-content_1fr] gap-1">
-                      {eventsThisWeek.map((event, index) => (
-                        <React.Fragment key={index}>
-                          <div key={index}>{getUTCDateString(event.date)}: </div>
-                          <div>{event.name}</div>
-                        </React.Fragment>
-                      ))}
+              return (
+                <Tooltip key={week}>
+                  <TooltipTrigger asChild>
+                    <WeekElement
+                      variant={
+                        isFuture
+                          ? "disabled"
+                          : eventsThisWeek.length > 0
+                          ? "primary"
+                          : isPast
+                          ? "default"
+                          : "active"
+                      }
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="max-w-[16rem]">
+                      <h2 className="text-center">
+                        Week {week} ({getUTCDateString(weekStart)} - {getUTCDateString(weekEnd)})
+                      </h2>
+                      <div className="grid grid-cols-[max-content_1fr] gap-1">
+                        {eventsThisWeek.map((event, index) => (
+                          <React.Fragment key={index}>
+                            <div key={index}>{getUTCDateString(event.date)}: </div>
+                            <div>{event.name}</div>
+                          </React.Fragment>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                }
-              />
-            );
-          })}
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </TooltipProvider>
         </div>
       </section>
     </main>
