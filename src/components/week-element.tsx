@@ -6,10 +6,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 const weekVariants = cva("h-4 w-4 rounded-sm", {
   variants: {
     variant: {
-      present: "bg-blue-400",
-      future: "bg-neutral-100",
-      birthday: "bg-neutral-900",
-      past: "bg-neutral-300",
+      default: "bg-neutral-300",
+      primary: "bg-neutral-900",
+      active: "bg-blue-400",
+      disabled: "bg-neutral-100",
     },
   },
 });
@@ -20,9 +20,9 @@ type WeekElementProps = {
 
 export const WeekElement = function WeekElement({ variant, tooltipContent }: WeekElementProps) {
   return (
-    <TooltipProvider>
+    <TooltipProvider delayDuration={200}>
       <Tooltip>
-        <TooltipTrigger>
+        <TooltipTrigger asChild>
           <div className={weekVariants({ variant })} />
         </TooltipTrigger>
         <TooltipContent>{tooltipContent}</TooltipContent>
