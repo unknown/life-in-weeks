@@ -8,7 +8,7 @@ import events from "@/data/events";
 import { getDaysBetween, getUTCDateString, getYearsBetween } from "@/utils/date";
 import { getRemainingLifeExpectancy } from "@/utils/population";
 
-const { name, dob, country, sex } = config;
+const { dob, country, sex } = config;
 
 export default async function Home() {
   const today = new Date();
@@ -22,9 +22,9 @@ export default async function Home() {
     <main className="mx-auto flex min-h-screen flex-col items-stretch gap-4 space-y-8 p-12">
       <section>
         <div className="mx-auto max-w-xl">
-          <h1 className="text-4xl font-medium">{name}&apos;s Life in Weeks</h1>
+          <h1 className="text-4xl font-medium">Life in Weeks</h1>
           <p className="mt-2">
-            A representation of my life in days, assuming a life expectancy of{" "}
+            A representation of my life in weeks, assuming a life expectancy of{" "}
             <a
               className="underline underline-offset-4"
               href="https://population.io/"

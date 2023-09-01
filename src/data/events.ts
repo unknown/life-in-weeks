@@ -46,7 +46,7 @@ const events: CalendarEvent[] = [
   },
   {
     date: new Date("2023-08-31"),
-    name: "I launch this project",
+    name: "Launch this project",
   },
 ];
 
