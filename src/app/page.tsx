@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WeekElement } from "@/components/week-element";
@@ -22,7 +23,7 @@ export default async function Home() {
       <section>
         <div className="mx-auto max-w-xl">
           <h1 className="text-4xl font-medium">Life in Weeks</h1>
-          <p className="mt-2">
+          <p className="mt-4">
             A representation of my life in weeks, assuming a life expectancy of{" "}
             <a
               className="underline underline-offset-4"
@@ -32,7 +33,8 @@ export default async function Home() {
             >
               {lifeExpectancyYears.toFixed(2)} years
             </a>
-            . This draws heavy inspiration from{" "}
+            . Each square illustrates a week of my life and can be expanded by clicking on it. Black
+            squares signify important weeks. This draws heavy inspiration from{" "}
             <a
               className="underline underline-offset-4"
               href="https://days.rory.codes/"
@@ -53,64 +55,71 @@ export default async function Home() {
             .
           </p>
           <div className="mt-6 space-y-2">
-            <Progress className="w-full" value={daysLived} max={lifeExpectancyDays} />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Progress className="w-full" value={daysLived} max={lifeExpectancyDays} />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-center">
+                    {((daysLived / lifeExpectancyDays) * 100).toFixed(2)}% complete
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <p className="text-center">Today is day {daysLived}.</p>
           </div>
         </div>
       </section>
       <section>
         <div className="mx-auto grid max-w-xl gap-3 grid-auto-fit-[16px]">
-          <TooltipProvider delayDuration={200}>
-            {Array.from({ length: lifeExpectancyDays / 7 }, (_, i) => {
-              const week = i + 1;
+          {Array.from({ length: lifeExpectancyDays / 7 }, (_, i) => {
+            const week = i + 1;
 
-              const weekDuration = 7 * 24 * 60 * 60 * 1000;
-              const weekStart = new Date(config.dob.getTime() + (week - 1) * weekDuration);
-              const weekEnd = new Date(config.dob.getTime() + week * weekDuration);
+            const weekDuration = 7 * 24 * 60 * 60 * 1000;
+            const weekStart = new Date(config.dob.getTime() + (week - 1) * weekDuration);
+            const weekEnd = new Date(config.dob.getTime() + week * weekDuration);
 
-              const isPast = weekEnd.getTime() < today.getTime();
-              const isFuture = today.getTime() < weekStart.getTime();
+            const isPast = weekEnd.getTime() < today.getTime();
+            const isFuture = today.getTime() < weekStart.getTime();
 
-              const eventsThisWeek = events.filter(
-                (event) =>
-                  weekStart.getTime() <= event.date.getTime() &&
-                  event.date.getTime() < weekEnd.getTime(),
-              );
+            const eventsThisWeek = events.filter(
+              (event) =>
+                weekStart.getTime() <= event.date.getTime() &&
+                event.date.getTime() < weekEnd.getTime(),
+            );
 
-              return (
-                <Tooltip key={week}>
-                  <TooltipTrigger asChild>
-                    <WeekElement
-                      variant={
-                        isFuture
-                          ? "disabled"
-                          : eventsThisWeek.length > 0
-                          ? "primary"
-                          : isPast
-                          ? "default"
-                          : "active"
-                      }
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <div className="max-w-[16rem]">
-                      <h2 className="text-center">
-                        Week {week} ({getUTCDateString(weekStart)} - {getUTCDateString(weekEnd)})
-                      </h2>
-                      <div className="grid grid-cols-[max-content_1fr] gap-1">
-                        {eventsThisWeek.map((event, index) => (
-                          <React.Fragment key={index}>
-                            <div key={index}>{getUTCDateString(event.date)}: </div>
-                            <div>{event.name}</div>
-                          </React.Fragment>
-                        ))}
-                      </div>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
-          </TooltipProvider>
+            return (
+              <Popover key={week}>
+                <PopoverTrigger asChild>
+                  <WeekElement
+                    variant={
+                      isFuture
+                        ? "disabled"
+                        : eventsThisWeek.length > 0
+                        ? "primary"
+                        : isPast
+                        ? "default"
+                        : "active"
+                    }
+                  />
+                </PopoverTrigger>
+                <PopoverContent className="w-full max-w-[16rem] text-xs">
+                  <h2 className="text-center">
+                    Week {week} ({getUTCDateString(weekStart)} - {getUTCDateString(weekEnd)})
+                  </h2>
+                  <div className="grid grid-cols-[max-content_1fr] gap-1">
+                    {eventsThisWeek.map((event, index) => (
+                      <React.Fragment key={index}>
+                        <div key={index}>{getUTCDateString(event.date)}: </div>
+                        <div>{event.name}</div>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            );
+          })}
         </div>
       </section>
     </main>

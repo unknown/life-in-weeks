@@ -15,5 +15,5 @@ const weekVariants = cva("h-4 w-4 rounded-sm", {
 type WeekElementProps = VariantProps<typeof weekVariants>;
 
 export const WeekElement = function WeekElement({ variant }: WeekElementProps) {
-  return <div className={weekVariants({ variant })} />;
+  return <button className={weekVariants({ variant })} />;
 };
