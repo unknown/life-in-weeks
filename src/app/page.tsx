@@ -8,14 +8,13 @@ import events from "@/data/events";
 import { getDaysBetween, getUTCDateString, getYearsBetween } from "@/utils/date";
 import { getRemainingLifeExpectancy } from "@/utils/population";
 
-const { dob, country, sex } = config;
-
 export default async function Home() {
   const today = new Date();
-  const daysLived = getDaysBetween(dob, today);
+  const daysLived = getDaysBetween(config.dob, today);
 
-  const remainingLifeExpectancy = await getRemainingLifeExpectancy({ dob, country, sex, today });
-  const lifeExpectancyYears = getYearsBetween(dob, today) + remainingLifeExpectancy;
+  const lifeExpectancyYears =
+    config.lifeExpectancy ??
+    getYearsBetween(config.dob, today) + (await getRemainingLifeExpectancy({ ...config, today }));
   const lifeExpectancyDays = lifeExpectancyYears * 365.25;
 
   return (
@@ -64,8 +63,10 @@ export default async function Home() {
           <TooltipProvider delayDuration={200}>
             {Array.from({ length: lifeExpectancyDays / 7 }, (_, i) => {
               const week = i + 1;
-              const weekStart = new Date(dob.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
-              const weekEnd = new Date(dob.getTime() + week * 7 * 24 * 60 * 60 * 1000);
+
+              const weekDuration = 7 * 24 * 60 * 60 * 1000;
+              const weekStart = new Date(config.dob.getTime() + (week - 1) * weekDuration);
+              const weekEnd = new Date(config.dob.getTime() + week * weekDuration);
 
               const isPast = weekEnd.getTime() < today.getTime();
               const isFuture = today.getTime() < weekStart.getTime();
