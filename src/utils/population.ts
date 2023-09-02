@@ -25,6 +25,7 @@ export const getRemainingLifeExpectancy = async function getRemainingLifeExpecta
   const formattedToday = getISODateString(today);
   const response = await fetch(
     `https://d6wn6bmjj722w.population.io/1.0/life-expectancy/remaining/${sex}/${country}/${formattedToday}/${daysAlive}d/`,
+    { next: { revalidate: 24 * 60 * 60 } },
   );
   const { remaining_life_expectancy } = (await response.json()) as RemainingLifeExpectancyResult;
   return remaining_life_expectancy;

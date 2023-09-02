@@ -10,13 +10,17 @@ import { getDaysBetween, getUTCDateString, getYearsBetween } from "@/utils/date"
 import { getRemainingLifeExpectancy } from "@/utils/population";
 
 export default async function Home() {
-  const today = new Date();
-  const daysLived = getDaysBetween(config.dob, today);
+  // make an uncached fetch as a hacky way to opt out of Full Route Cache
+  const worldTimeResult = (await fetch("https://worldtimeapi.org/api/timezone/Etc/UTC", {
+    cache: "no-store",
+  }).then((response) => response.json())) as { utc_datetime: string };
+  const today = new Date(worldTimeResult.utc_datetime);
 
   const lifeExpectancyYears =
     config.lifeExpectancy ??
     getYearsBetween(config.dob, today) + (await getRemainingLifeExpectancy({ ...config, today }));
   const lifeExpectancyDays = lifeExpectancyYears * 365.25;
+  const daysLived = getDaysBetween(config.dob, today);
 
   return (
     <main className="mx-auto flex min-h-screen flex-col items-stretch gap-4 space-y-8 p-12">
